@@ -40,7 +40,7 @@ const Index = () => {
 
       {/* Stat Cards Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        <StatCard title="Bilty" value="0/00" subtitle="Total bilty created" icon={Receipt} color="red" />
+        <StatCard title="Bilty" value="0/00" subtitle="Total Bilty created" icon={Receipt} color="red" />
         <StatCard title="Invoices" value="0/50" subtitle="Total invoices" icon={FileText} color="green" />
         <StatCard title="Load Advices" value="0/00" subtitle="Total load advices" icon={Landmark} color="blue" />
         <InfoCard title="Supplier Ledger" value="0" subtitle="Total supplier ledgers" icon={Users} />

@@ -10,7 +10,7 @@ const EmptySection = ({ title, icon: Icon }: { title: string; icon: React.Elemen
   </div>
 );
 
-const BillySection = () => <EmptySection title="Billy" icon={Receipt} />;
+const BillySection = () => <EmptySection title="Bilty" icon={Receipt} />;
 const InvoiceSection = () => <EmptySection title="Invoice" icon={FileText} />;
 
 export { BillySection, InvoiceSection };

@@ -49,7 +49,7 @@ const menuItems: MenuItem[] = [
       { title: "Parties", path: "/masters/parties" },
     ],
   },
-  { title: "Billy", icon: Receipt, path: "/billy" },
+  { title: "Bilty", icon: Receipt, path: "/bilty" },
   { title: "Collection Memo", icon: BookOpen, path: "/collection-memo" },
   { title: "Hiring Rate Settlement", icon: TruckIcon, path: "/hiring-rate" },
   { title: "Load Advice", icon: Landmark, path: "/load-advice" },

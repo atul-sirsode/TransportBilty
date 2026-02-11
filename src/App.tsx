@@ -10,6 +10,7 @@ import VehicleTypes from "./pages/masters/VehicleTypes";
 import Units from "./pages/masters/Units";
 import Ledger from "./pages/masters/Ledger";
 import Parties from "./pages/masters/Parties";
+import Bilty from "./pages/Bilty";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/masters/units" element={<Units />} />
           <Route path="/masters/ledger" element={<Ledger />} />
           <Route path="/masters/parties" element={<Parties />} />
+          <Route path="/bilty" element={<Bilty />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

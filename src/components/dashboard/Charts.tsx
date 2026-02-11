@@ -43,7 +43,7 @@ const lineData = [
 
 const MonthlyBillyChart = () => (
   <div className="bg-card rounded-lg p-5 border border-border animate-fade-in">
-    <h3 className="text-sm font-semibold text-foreground mb-4">Monthly Billy Created</h3>
+    <h3 className="text-sm font-semibold text-foreground mb-4">Monthly Bilty Created</h3>
     <ResponsiveContainer width="100%" height={200}>
       <BarChart data={barData}>
         <CartesianGrid strokeDasharray="3 3" stroke="hsl(222 18% 18%)" />
