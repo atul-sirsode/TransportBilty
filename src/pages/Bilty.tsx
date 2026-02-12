@@ -12,6 +12,232 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { units } from "@/data/units";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+// Indian states list
+const indianStates = [
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+  "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka",
+  "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram",
+  "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
+  "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
+  "Delhi", "Jammu & Kashmir", "Ladakh",
+];
+
+// ─── Party Form Dialog (reused for Billing Party, Consignor, Consignee, Loading, Shipping) ───
+const PartyFormDialog = ({
+  open,
+  onClose,
+  title,
+  onSubmit,
+}: {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  onSubmit: (data: { companyName: string }) => void;
+}) => {
+  const [data, setData] = useState({
+    gstNumber: "", companyName: "", legalName: "", panNumber: "",
+    address: "", state: "", city: "", postalCode: "",
+    contactPerson: "", phoneNumber: "", altPhoneNumber: "",
+  });
+  const s = (k: string, v: string) => setData((p) => ({ ...p, [k]: v }));
+
+  const handleSubmit = () => {
+    if (!data.companyName.trim()) return;
+    onSubmit({ companyName: data.companyName.trim() });
+    setData({
+      gstNumber: "", companyName: "", legalName: "", panNumber: "",
+      address: "", state: "", city: "", postalCode: "",
+      contactPerson: "", phoneNumber: "", altPhoneNumber: "",
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-primary">{title}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 pt-2">
+          <div className="flex gap-3 items-end">
+            <div className="flex-1">
+              <label className="text-xs text-muted-foreground mb-1 block">GST Number</label>
+              <input value={data.gstNumber} onChange={(e) => s("gstNumber", e.target.value)}
+                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                placeholder="GST Number" />
+            </div>
+            <button className="h-10 px-4 bg-primary text-primary-foreground rounded-md text-sm hover:bg-primary/90">Search</button>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Company Name <span className="text-destructive">*</span></label>
+              <input value={data.companyName} onChange={(e) => s("companyName", e.target.value)}
+                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                placeholder="Company Name" />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Legal Name</label>
+              <input value={data.legalName} onChange={(e) => s("legalName", e.target.value)}
+                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                placeholder="Legal Name" />
+            </div>
+          </div>
+          <div className="w-1/2">
+            <label className="text-xs text-muted-foreground mb-1 block">PAN Number</label>
+            <input value={data.panNumber} onChange={(e) => s("panNumber", e.target.value)}
+              className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              placeholder="PAN Number" />
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground mb-1 block">Address <span className="text-destructive">*</span></label>
+            <textarea value={data.address} onChange={(e) => s("address", e.target.value)} rows={3}
+              className="w-full px-3 py-2 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-y"
+              placeholder="Address" />
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">State</label>
+              <select value={data.state} onChange={(e) => s("state", e.target.value)}
+                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground">
+                <option value="">State</option>
+                {indianStates.map((st) => <option key={st} value={st}>{st}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">City <span className="text-destructive">*</span></label>
+              <input value={data.city} onChange={(e) => s("city", e.target.value)}
+                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                placeholder="City" />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Postal Code <span className="text-destructive">*</span></label>
+              <input value={data.postalCode} onChange={(e) => s("postalCode", e.target.value)}
+                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                placeholder="Postal Code" />
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Contact Person</label>
+              <input value={data.contactPerson} onChange={(e) => s("contactPerson", e.target.value)}
+                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                placeholder="Contact Person" />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Phone Number</label>
+              <input value={data.phoneNumber} onChange={(e) => s("phoneNumber", e.target.value)}
+                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                placeholder="Phone Number" />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Alternate Phone Number</label>
+              <input value={data.altPhoneNumber} onChange={(e) => s("altPhoneNumber", e.target.value)}
+                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                placeholder="Alternate Phone Number" />
+            </div>
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <button onClick={handleSubmit} className="px-6 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90">Submit</button>
+            <button onClick={onClose} className="px-6 py-2 bg-muted text-foreground rounded-md text-sm hover:bg-accent">Cancel</button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+// ─── Insurance Details Dialog ────────────────────
+const InsuranceDialog = ({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) => {
+  const [data, setData] = useState({
+    holderName: "", policyNumber: "", coverageAmount: "0", insuredValue: "0",
+    premiumAmount: "0", policyDocument: "", provider: "", startDate: "", endDate: "",
+  });
+  const s = (k: string, v: string) => setData((p) => ({ ...p, [k]: v }));
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-primary">Insurance Details</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 pt-2">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Holder Name</label>
+              <input value={data.holderName} onChange={(e) => s("holderName", e.target.value)}
+                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                placeholder="Holder Name" />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Policy Number</label>
+              <input value={data.policyNumber} onChange={(e) => s("policyNumber", e.target.value)}
+                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                placeholder="Policy Number" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Coverage Amount</label>
+              <input type="number" value={data.coverageAmount} onChange={(e) => s("coverageAmount", e.target.value)}
+                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Insured Value</label>
+              <input type="number" value={data.insuredValue} onChange={(e) => s("insuredValue", e.target.value)}
+                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Premium Amount</label>
+              <input type="number" value={data.premiumAmount} onChange={(e) => s("premiumAmount", e.target.value)}
+                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Policy Document</label>
+              <input value={data.policyDocument} onChange={(e) => s("policyDocument", e.target.value)}
+                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                placeholder="Policy Document" />
+            </div>
+          </div>
+          <div className="w-1/2">
+            <label className="text-xs text-muted-foreground mb-1 block">Provider</label>
+            <input value={data.provider} onChange={(e) => s("provider", e.target.value)}
+              className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              placeholder="Provider" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Start Date</label>
+              <input type="date" value={data.startDate} onChange={(e) => s("startDate", e.target.value)}
+                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">End Date</label>
+              <input type="date" value={data.endDate} onChange={(e) => s("endDate", e.target.value)}
+                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
+            </div>
+          </div>
+          <div className="flex justify-end pt-2">
+            <button onClick={onClose} className="px-6 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90">Confirm</button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 // Reusable searchable dropdown with "add new" support
 const SearchableSelect = ({
@@ -29,7 +255,7 @@ const SearchableSelect = ({
   options: string[];
   value: string;
   onChange: (v: string) => void;
-  onAddNew?: (v: string) => void;
+  onAddNew?: () => void;
   placeholder?: string;
   disabled?: boolean;
 }) => {
@@ -41,10 +267,12 @@ const SearchableSelect = ({
 
   return (
     <div className="relative">
-      <label className="text-xs text-muted-foreground mb-1 block">
-        {label}
-        {required && <span className="text-destructive ml-0.5">*</span>}
-      </label>
+      {label && (
+        <label className="text-xs text-muted-foreground mb-1 block">
+          {label}
+          {required && <span className="text-destructive ml-0.5">*</span>}
+        </label>
+      )}
       <button
         type="button"
         disabled={disabled}
@@ -89,25 +317,15 @@ const SearchableSelect = ({
             ) : (
               <div className="p-3 text-xs text-muted-foreground flex items-center justify-between">
                 <span>No data found.</span>
-                {onAddNew && search.trim() && (
+                {onAddNew && (
                   <button
                     type="button"
-                    className="ml-2 px-2 py-1 text-xs bg-primary text-primary-foreground rounded hover:bg-primary/90"
+                    className="ml-2 h-6 w-6 flex items-center justify-center bg-primary text-primary-foreground rounded hover:bg-primary/90"
                     onClick={() => {
-                      onAddNew(search.trim());
-                      onChange(search.trim());
                       setOpen(false);
                       setSearch("");
+                      onAddNew();
                     }}
-                  >
-                    + Add
-                  </button>
-                )}
-                {onAddNew && !search.trim() && (
-                  <button
-                    type="button"
-                    className="ml-2 h-5 w-5 flex items-center justify-center bg-muted rounded text-muted-foreground hover:bg-accent"
-                    onClick={() => {}}
                   >
                     +
                   </button>
@@ -317,9 +535,16 @@ const BiltyForm = ({ onBack }: { onBack: () => void }) => {
   const [consignors, setConsignors] = useState<string[]>([]);
   const [consignees, setConsignees] = useState<string[]>([]);
   const [vehicles, setVehicles] = useState<string[]>([]);
+  const [loadingPoints, setLoadingPoints] = useState<string[]>([]);
+  const [shippingPoints, setShippingPoints] = useState<string[]>([]);
   const [packages, setPackages] = useState<
     { qty: string; unit: string; commodity: string }[]
   >([]);
+
+  // Dialog states
+  const [dialogOpen, setDialogOpen] = useState<
+    null | "billingParty" | "consignor" | "consignee" | "loading" | "shipping" | "insurance"
+  >(null);
 
   const set = (key: string, val: string | boolean) =>
     setForm((p) => ({ ...p, [key]: val }));
@@ -339,8 +564,58 @@ const BiltyForm = ({ onBack }: { onBack: () => void }) => {
     "Per Package",
   ];
 
+  const dialogTitles: Record<string, string> = {
+    billingParty: "Add New Billing Party",
+    consignor: "Add New Consignor",
+    consignee: "Add New Consignee",
+    loading: "Add New Loading",
+    shipping: "Add New Shipping",
+  };
+
+  const handlePartySubmit = (type: string, data: { companyName: string }) => {
+    switch (type) {
+      case "billingParty":
+        setBillingParties((p) => [...p, data.companyName]);
+        set("billingParty", data.companyName);
+        break;
+      case "consignor":
+        setConsignors((p) => [...p, data.companyName]);
+        set("consignor", data.companyName);
+        break;
+      case "consignee":
+        setConsignees((p) => [...p, data.companyName]);
+        set("consignee", data.companyName);
+        break;
+      case "loading":
+        setLoadingPoints((p) => [...p, data.companyName]);
+        set("loading", data.companyName);
+        break;
+      case "shipping":
+        setShippingPoints((p) => [...p, data.companyName]);
+        set("shipping", data.companyName);
+        break;
+    }
+    setDialogOpen(null);
+  };
+
   return (
     <div className="space-y-6">
+      {/* Party Dialog (shared for billing, consignor, consignee, loading, shipping) */}
+      {dialogOpen && dialogOpen !== "insurance" && (
+        <PartyFormDialog
+          open={true}
+          onClose={() => setDialogOpen(null)}
+          title={dialogTitles[dialogOpen]}
+          onSubmit={(data) => handlePartySubmit(dialogOpen, data)}
+        />
+      )}
+
+      {/* Insurance Dialog */}
+      <InsuranceDialog
+        open={dialogOpen === "insurance"}
+        onClose={() => setDialogOpen(null)}
+      />
+
       {/* Header */}
       <div className="flex items-center gap-3">
         <button
@@ -366,7 +641,7 @@ const BiltyForm = ({ onBack }: { onBack: () => void }) => {
           options={billingParties}
           value={form.billingParty}
           onChange={(v) => set("billingParty", v)}
-          onAddNew={(v) => setBillingParties((p) => [...p, v])}
+          onAddNew={() => setDialogOpen("billingParty")}
           placeholder="Select Billing Party"
         />
         <SearchableSelect
@@ -410,7 +685,7 @@ const BiltyForm = ({ onBack }: { onBack: () => void }) => {
           options={vehicles}
           value={form.vehicleNo}
           onChange={(v) => set("vehicleNo", v)}
-          onAddNew={(v) => setVehicles((p) => [...p, v])}
+          onAddNew={() => setVehicles((p) => [...p, "NEW"])}
           placeholder="Select Vehicle"
         />
         <SearchableSelect
@@ -433,7 +708,7 @@ const BiltyForm = ({ onBack }: { onBack: () => void }) => {
             options={consignors}
             value={form.consignor}
             onChange={(v) => set("consignor", v)}
-            onAddNew={(v) => setConsignors((p) => [...p, v])}
+            onAddNew={() => setDialogOpen("consignor")}
             placeholder="Consignor"
           />
           <div className="bg-card border border-border rounded px-3 py-2 text-xs text-muted-foreground">
@@ -449,7 +724,7 @@ const BiltyForm = ({ onBack }: { onBack: () => void }) => {
             options={consignees}
             value={form.consignee}
             onChange={(v) => set("consignee", v)}
-            onAddNew={(v) => setConsignees((p) => [...p, v])}
+            onAddNew={() => setDialogOpen("consignee")}
             placeholder="Consignee"
           />
           <div className="bg-card border border-border rounded px-3 py-2 text-xs text-muted-foreground">
@@ -462,18 +737,18 @@ const BiltyForm = ({ onBack }: { onBack: () => void }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <SearchableSelect
           label="Loading"
-          options={[]}
+          options={loadingPoints}
           value={form.loading}
           onChange={(v) => set("loading", v)}
-          onAddNew={() => {}}
+          onAddNew={() => setDialogOpen("loading")}
           placeholder="Loading"
         />
         <SearchableSelect
           label="Shipping"
-          options={[]}
+          options={shippingPoints}
           value={form.shipping}
           onChange={(v) => set("shipping", v)}
-          onAddNew={() => {}}
+          onAddNew={() => setDialogOpen("shipping")}
           placeholder="Shipping"
         />
       </div>
@@ -515,7 +790,10 @@ const BiltyForm = ({ onBack }: { onBack: () => void }) => {
           ))}
         </div>
         <div className="flex items-end">
-          <button className="px-4 py-2 bg-primary text-primary-foreground rounded text-xs hover:bg-primary/90">
+          <button
+            onClick={() => setDialogOpen("insurance")}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded text-xs hover:bg-primary/90"
+          >
             + Insurance Details
           </button>
         </div>
