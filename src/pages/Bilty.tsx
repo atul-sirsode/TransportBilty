@@ -12,6 +12,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { units } from "@/data/units";
+import { vehicleMasterList } from "@/data/vehicles";
 import {
   Dialog,
   DialogContent,
@@ -381,6 +382,75 @@ const InputField = ({
   </div>
 );
 
+// ─── Vehicle Autocomplete (textbox with suggestions from master list) ───
+const VehicleAutocomplete = ({
+  label,
+  required,
+  value,
+  onChange,
+}: {
+  label: string;
+  required?: boolean;
+  value: string;
+  onChange: (v: string) => void;
+}) => {
+  const [open, setOpen] = useState(false);
+  const [inputVal, setInputVal] = useState(value);
+
+  const allVehicleNos = vehicleMasterList
+    .filter((v) => v.status === "Active")
+    .map((v) => v.vehicleNo);
+
+  const filtered = allVehicleNos.filter((no) =>
+    no.toLowerCase().includes(inputVal.toLowerCase())
+  );
+
+  const handleSelect = (no: string) => {
+    setInputVal(no);
+    onChange(no);
+    setOpen(false);
+  };
+
+  return (
+    <div className="relative">
+      {label && (
+        <label className="text-xs text-muted-foreground mb-1 block">
+          {label}
+          {required && <span className="text-destructive ml-0.5">*</span>}
+        </label>
+      )}
+      <input
+        type="text"
+        value={inputVal}
+        placeholder="Type vehicle no..."
+        onChange={(e) => {
+          setInputVal(e.target.value);
+          onChange(e.target.value);
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+        className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+      />
+      {open && filtered.length > 0 && (
+        <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg max-h-44 overflow-y-auto">
+          {filtered.map((no) => (
+            <button
+              key={no}
+              type="button"
+              className="w-full px-3 py-2 text-xs text-left hover:bg-accent text-foreground"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => handleSelect(no)}
+            >
+              {no}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ─── Bilty List View ─────────────────────────────
 const BiltyList = ({ onCreateNew }: { onCreateNew: () => void }) => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -679,14 +749,11 @@ const BiltyForm = ({ onBack }: { onBack: () => void }) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <SearchableSelect
+        <VehicleAutocomplete
           label="Vehicle No."
           required
-          options={vehicles}
           value={form.vehicleNo}
           onChange={(v) => set("vehicleNo", v)}
-          onAddNew={() => setVehicles((p) => [...p, "NEW"])}
-          placeholder="Select Vehicle"
         />
         <SearchableSelect
           label="Vehicle Ownership"
