@@ -2,28 +2,13 @@ import { useState } from "react";
 import { Search, Plus, Pencil, Eye, Upload, X } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { vehicleTypes } from "@/data/vehicleTypes";
+import { vehicleMasterList, type VehicleMaster } from "@/data/vehicles";
 
-interface Vehicle {
-  id: string;
-  vehicleNo: string;
-  vehicleType: string;
-  vehicleTypeImg: string;
-  status: string;
-  isOwn: boolean;
-}
+type Vehicle = VehicleMaster;
 
 type FormMode = "create" | "edit" | "view" | null;
 
-const initialVehicles: Vehicle[] = [
-  {
-    id: "1",
-    vehicleNo: "MH40N4755",
-    vehicleType: "Tipper Truck",
-    vehicleTypeImg: "https://res.cloudinary.com/dinu2gkts/image/upload/v1760691170/tipper-truck-dark_wp4d1a.svg",
-    status: "Active",
-    isOwn: true,
-  },
-];
+const initialVehicles: Vehicle[] = [...vehicleMasterList];
 
 const Vehicles = () => {
   const [search, setSearch] = useState("");
