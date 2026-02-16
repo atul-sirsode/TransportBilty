@@ -47,20 +47,51 @@ const PartyFormDialog = ({
     address: "", state: "", city: "", postalCode: "",
     contactPerson: "", phoneNumber: "", altPhoneNumber: "",
   });
-  const s = (k: string, v: string) => setData((p) => ({ ...p, [k]: v }));
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitted, setSubmitted] = useState(false);
+  const s = (k: string, v: string) => {
+    setData((p) => ({ ...p, [k]: v }));
+    if (submitted) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[k];
+        return next;
+      });
+    }
+  };
+
+  const validate = () => {
+    const errs: Record<string, string> = {};
+    if (!data.companyName.trim() || data.companyName.trim().length < 2)
+      errs.companyName = "Company name is required and must be at least 2 characters.";
+    if (!data.address.trim() || data.address.trim().length < 2)
+      errs.address = "Address is required and must be at least 2 characters.";
+    if (!data.state) errs.state = "State is required";
+    if (!data.city.trim()) errs.city = "City is required";
+    if (!data.postalCode.trim()) errs.postalCode = "Postal code is required";
+    return errs;
+  };
 
   const handleSubmit = () => {
-    if (!data.companyName.trim()) return;
+    setSubmitted(true);
+    const errs = validate();
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) return;
     onSubmit({ companyName: data.companyName.trim() });
     setData({
       gstNumber: "", companyName: "", legalName: "", panNumber: "",
       address: "", state: "", city: "", postalCode: "",
       contactPerson: "", phoneNumber: "", altPhoneNumber: "",
     });
+    setErrors({});
+    setSubmitted(false);
   };
 
+  const inputCls = (field: string) =>
+    `w-full h-10 px-3 text-sm rounded-md border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary ${errors[field] ? "border-destructive" : "border-border"}`;
+
   return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+    <Dialog open={open} onOpenChange={(v) => { if (!v) { onClose(); setErrors({}); setSubmitted(false); } }}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-primary">{title}</DialogTitle>
@@ -70,7 +101,7 @@ const PartyFormDialog = ({
             <div className="flex-1">
               <label className="text-xs text-muted-foreground mb-1 block">GST Number</label>
               <input value={data.gstNumber} onChange={(e) => s("gstNumber", e.target.value)}
-                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className={inputCls("gstNumber")}
                 placeholder="GST Number" />
             </div>
             <button className="h-10 px-4 bg-primary text-primary-foreground rounded-md text-sm hover:bg-primary/90">Search</button>
@@ -79,73 +110,78 @@ const PartyFormDialog = ({
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">Company Name <span className="text-destructive">*</span></label>
               <input value={data.companyName} onChange={(e) => s("companyName", e.target.value)}
-                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className={inputCls("companyName")}
                 placeholder="Company Name" />
+              {errors.companyName && <p className="text-xs text-destructive mt-1">{errors.companyName}</p>}
             </div>
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">Legal Name</label>
               <input value={data.legalName} onChange={(e) => s("legalName", e.target.value)}
-                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className={inputCls("legalName")}
                 placeholder="Legal Name" />
             </div>
           </div>
           <div className="w-1/2">
             <label className="text-xs text-muted-foreground mb-1 block">PAN Number</label>
             <input value={data.panNumber} onChange={(e) => s("panNumber", e.target.value)}
-              className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              className={inputCls("panNumber")}
               placeholder="PAN Number" />
           </div>
           <div>
             <label className="text-xs text-muted-foreground mb-1 block">Address <span className="text-destructive">*</span></label>
             <textarea value={data.address} onChange={(e) => s("address", e.target.value)} rows={3}
-              className="w-full px-3 py-2 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-y"
+              className={`w-full px-3 py-2 text-sm rounded-md border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary resize-y ${errors.address ? "border-destructive" : "border-border"}`}
               placeholder="Address" />
+            {errors.address && <p className="text-xs text-destructive mt-1">{errors.address}</p>}
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="text-xs text-muted-foreground mb-1 block">State</label>
+              <label className="text-xs text-muted-foreground mb-1 block">State <span className="text-destructive">*</span></label>
               <select value={data.state} onChange={(e) => s("state", e.target.value)}
-                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground">
+                className={`w-full h-10 px-3 text-sm rounded-md border bg-card text-foreground ${errors.state ? "border-destructive" : "border-border"}`}>
                 <option value="">State</option>
                 {indianStates.map((st) => <option key={st} value={st}>{st}</option>)}
               </select>
+              {errors.state && <p className="text-xs text-destructive mt-1">{errors.state}</p>}
             </div>
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">City <span className="text-destructive">*</span></label>
               <input value={data.city} onChange={(e) => s("city", e.target.value)}
-                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className={inputCls("city")}
                 placeholder="City" />
+              {errors.city && <p className="text-xs text-destructive mt-1">{errors.city}</p>}
             </div>
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">Postal Code <span className="text-destructive">*</span></label>
               <input value={data.postalCode} onChange={(e) => s("postalCode", e.target.value)}
-                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className={inputCls("postalCode")}
                 placeholder="Postal Code" />
+              {errors.postalCode && <p className="text-xs text-destructive mt-1">{errors.postalCode}</p>}
             </div>
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">Contact Person</label>
               <input value={data.contactPerson} onChange={(e) => s("contactPerson", e.target.value)}
-                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className={inputCls("contactPerson")}
                 placeholder="Contact Person" />
             </div>
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">Phone Number</label>
               <input value={data.phoneNumber} onChange={(e) => s("phoneNumber", e.target.value)}
-                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className={inputCls("phoneNumber")}
                 placeholder="Phone Number" />
             </div>
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">Alternate Phone Number</label>
               <input value={data.altPhoneNumber} onChange={(e) => s("altPhoneNumber", e.target.value)}
-                className="w-full h-10 px-3 text-sm rounded-md border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                className={inputCls("altPhoneNumber")}
                 placeholder="Alternate Phone Number" />
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-2">
             <button onClick={handleSubmit} className="px-6 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90">Submit</button>
-            <button onClick={onClose} className="px-6 py-2 bg-muted text-foreground rounded-md text-sm hover:bg-accent">Cancel</button>
+            <button onClick={() => { onClose(); setErrors({}); setSubmitted(false); }} className="px-6 py-2 bg-muted text-foreground rounded-md text-sm hover:bg-accent">Cancel</button>
           </div>
         </div>
       </DialogContent>
