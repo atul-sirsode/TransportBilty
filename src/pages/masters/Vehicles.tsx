@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, Plus, Pencil, Eye, Upload, X } from "lucide-react";
+import { Search, Plus, Pencil, Eye, Upload, X, ChevronDown } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { vehicleTypes } from "@/data/vehicleTypes";
 import { vehicleMasterList, type VehicleMaster } from "@/data/vehicles";
@@ -7,6 +7,86 @@ import { vehicleMasterList, type VehicleMaster } from "@/data/vehicles";
 type Vehicle = VehicleMaster;
 
 type FormMode = "create" | "edit" | "view" | null;
+
+// ─── Vehicle Type Dropdown with images ───
+const VehicleTypeDropdown = ({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  disabled?: boolean;
+}) => {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const filtered = vehicleTypes.filter((vt) =>
+    vt.name.toLowerCase().includes(search.toLowerCase())
+  );
+  const selected = vehicleTypes.find((vt) => vt.name === value);
+
+  return (
+    <div className="relative">
+      <label className="text-xs text-muted-foreground mb-1 block">
+        Vehicle Type <span className="text-destructive">*</span>
+      </label>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => !disabled && setOpen(!open)}
+        className={`w-full h-10 px-3 text-sm text-left rounded-md bg-secondary border border-border text-foreground flex items-center justify-between ${disabled ? "opacity-70 cursor-not-allowed" : ""}`}
+      >
+        <span className={value ? "flex items-center gap-2" : "text-muted-foreground"}>
+          {selected ? (
+            <>
+              <img src={selected.dark_img} alt={selected.name} className="h-5 w-8 object-contain dark:inline hidden" />
+              <img src={selected.light_img} alt={selected.name} className="h-5 w-8 object-contain dark:hidden inline" />
+              {selected.name}
+            </>
+          ) : (
+            "Select Vehicle Type"
+          )}
+        </span>
+        <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg max-h-60 overflow-hidden">
+          <div className="p-2 border-b border-border">
+            <input
+              type="text"
+              placeholder="Search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full h-8 px-2 text-xs rounded bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none"
+              autoFocus
+            />
+          </div>
+          <div className="overflow-y-auto max-h-48">
+            {filtered.map((vt) => (
+              <button
+                key={vt._id}
+                type="button"
+                className="w-full px-3 py-2.5 text-sm text-left hover:bg-accent text-foreground flex items-center gap-3"
+                onClick={() => {
+                  onChange(vt.name);
+                  setOpen(false);
+                  setSearch("");
+                }}
+              >
+                <img src={vt.dark_img} alt={vt.name} className="h-6 w-10 object-contain dark:inline hidden" />
+                <img src={vt.light_img} alt={vt.name} className="h-6 w-10 object-contain dark:hidden inline" />
+                {vt.name}
+              </button>
+            ))}
+            {filtered.length === 0 && (
+              <div className="p-3 text-xs text-muted-foreground">No vehicle types found.</div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const initialVehicles: Vehicle[] = [...vehicleMasterList];
 
@@ -97,17 +177,11 @@ const Vehicles = () => {
                 onChange={(e) => setForm({ ...form, vehicleNo: e.target.value })}
                 className={`w-full h-10 px-3 text-sm rounded-md bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary ${isReadOnly ? "opacity-70 cursor-not-allowed" : ""}`} />
             </div>
-            <div>
-              <label className="text-xs text-muted-foreground mb-1 block">Vehicle Type *</label>
-              <select value={form.vehicleType} disabled={isReadOnly}
-                onChange={(e) => setForm({ ...form, vehicleType: e.target.value })}
-                className={`w-full h-10 px-3 text-sm rounded-md bg-secondary border border-border text-foreground focus:outline-none focus:ring-1 focus:ring-primary ${isReadOnly ? "opacity-70 cursor-not-allowed" : ""}`}>
-                <option value="">Select Vehicle Type</option>
-                {vehicleTypes.map((vt) => (
-                  <option key={vt._id} value={vt.name}>{vt.name}</option>
-                ))}
-              </select>
-            </div>
+            <VehicleTypeDropdown
+              value={form.vehicleType}
+              onChange={(v) => setForm({ ...form, vehicleType: v })}
+              disabled={isReadOnly}
+            />
           </div>
 
           {!isReadOnly && (
