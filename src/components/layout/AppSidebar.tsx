@@ -30,15 +30,6 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   { title: "Dashboard", icon: LayoutDashboard, path: "/" },
   {
-    title: "Administration",
-    icon: Shield,
-    children: [
-      { title: "Subscription History", path: "/subscription-history" },
-      { title: "GST Call Subscription History", path: "/gst-subscription" },
-    ],
-  },
-  { title: "Settings", icon: Settings, path: "/settings" },
-  {
     title: "Masters",
     icon: Database,
     children: [
@@ -50,11 +41,7 @@ const menuItems: MenuItem[] = [
     ],
   },
   { title: "Bilty", icon: Receipt, path: "/bilty" },
-  { title: "Collection Memo", icon: BookOpen, path: "/collection-memo" },
-  { title: "Hiring Rate Settlement", icon: TruckIcon, path: "/hiring-rate" },
-  { title: "Load Advice", icon: Landmark, path: "/load-advice" },
   { title: "Invoices", icon: FileText, path: "/invoices" },
-  { title: "Subscription Plans", icon: CreditCard, path: "/subscription-plans" },
   { title: "Reports", icon: BarChart3, path: "/reports" },
 ];
 
@@ -105,7 +92,7 @@ const AppSidebar = ({ collapsed, onToggle }: SidebarProps) => {
           <Link to="/" className="flex items-center gap-2">
             <TruckIcon className="h-6 w-6 text-primary" />
             <span className="text-lg font-bold text-foreground">
-              Truck<span className="text-primary">Bilty</span>
+              Truck<span className="text-primary">Billy</span>
             </span>
           </Link>
         )}
